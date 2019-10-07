@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+#This script will prompt for user information; then create a local account
+
 
 #Check if root User; if not root then exit status 1 
 ACCOUNT_CREATOR='0'
@@ -9,16 +12,16 @@ then
 fi
 
 #prompt for username to be created
-read -p "Account Username: " usrname
+read -p "Account Username: " USRNAME
 
 #prompt for Name of User; put into comment field
-read -p "Name of Account User: " fullname
+read -p "Name of Account User: " FULLNAME
 
 # prompt for initial password; this should be marked for change on first login (handled by linux)
-read -p "Account Password: " passwrd
+read -p "Account Password: " PASSWRD
 
 #Create new User with above information
-useradd --comment "${fullname}" --create-home ${usrname}
+useradd --comment "${FULLNAME}" --create-home ${USRNAME}
 
 #If fails account creation; exit status 1
 if [[ "${?}" -ne 0 ]]
@@ -28,13 +31,13 @@ then
 fi
 
 #Set password and force expire it
-echo ${passwrd} | passwd --stdin ${usrname}
-passwd -e ${usrname}
+echo ${PASSWRD} | passwd --stdin ${USRNAME}
+passwd -e ${USRNAME}
 
 #Display username, password, and host of account
 
-echo "USER: ${usrname}"
-echo "PASS: ${passwrd}"
+echo "USER: ${USRNAME}"
+echo "PASS: ${PASSWRD}"
 echo "HOST: ${HOSTNAME}"
 exit 0
 
