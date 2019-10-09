@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-#This script will prompt for user information; then create a local account
-
+#This script will use args to generate local user account with a random password
 
 #Check if root User; if not root then exit status 1 
 ACCOUNT_CREATOR='0'
@@ -11,17 +10,25 @@ then
   exit 1
 fi
 
-#prompt for username to be created
-read -p "Account Username: " USRNAME
+#Check for parameters; exit 1 if no parameters
+if [[ ${#} -eq 0 ]]
+then
+	echo "Usage: ${0} USER_NAME [COMMENT]..."
+	exit 1
+fi
 
-#prompt for Name of User; put into comment field
-read -p "Name of Account User: " FULLNAME
+#Loop through positional parameters; get username and comment
+USRNAME=${1}
+shift
 
-# prompt for initial password; this should be marked for change on first login (handled by linux)
-read -p "Account Password: " PASSWRD
+while [[ "${#}" -gt 0 ]]
+do
+	COMMENT="${COMMENT} ${1}"
+	shift
+done
 
 #Create new User with above information
-useradd --comment "${FULLNAME}" --create-home ${USRNAME}
+useradd --comment "${COMMENT}" --create-home ${USRNAME}
 
 #If fails account creation; exit status 1
 if [[ "${?}" -ne 0 ]]
@@ -29,6 +36,10 @@ then
   echo "User Account Creation Failed."
   exit 1
 fi
+
+#Generate Password
+PASSWRD=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c8)
+
 
 #Set password and force expire it
 echo ${PASSWRD} | passwd --stdin ${USRNAME}
