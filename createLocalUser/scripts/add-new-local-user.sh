@@ -21,11 +21,7 @@ fi
 USRNAME=${1}
 shift
 
-while [[ "${#}" -gt 0 ]]
-do
-	COMMENT="${COMMENT} ${1}"
-	shift
-done
+COMMENT=${@}
 
 #Create new User with above information
 useradd --comment "${COMMENT}" --create-home ${USRNAME}
