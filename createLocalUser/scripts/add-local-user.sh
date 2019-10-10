@@ -8,7 +8,7 @@ NOW=$(date +"%Y-%m-%d %H:%M:%S")
 
 if [[ "${ACCOUNT_CREATOR}" -ne "${UID}" ]]
 then
-  echo "[ ${NOW} ] Please run with sudo or as root. Exiting script." &>> ${ERRLOG}
+  echo "[ ${NOW} ] Please run with sudo or as root. Exiting script." >&2 
   exit 1
 fi
 
@@ -54,8 +54,6 @@ echo "USER: ${USRNAME}"
 echo "PASS: ${PASSWRD}"
 echo "HOST: ${HOSTNAME}"
 
-#Cleanup error log file
-rm ${ERRLOG} > /dev/null
 
 exit 0
 
