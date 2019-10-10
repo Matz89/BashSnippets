@@ -5,7 +5,6 @@
 #Check if root User; if not root then exit status 1 
 ACCOUNT_CREATOR='0'
 NOW=$(date +"%Y-%m-%d %H:%M:%S")
-ERRLOG=./err.log
 
 if [[ "${ACCOUNT_CREATOR}" -ne "${UID}" ]]
 then
@@ -16,8 +15,8 @@ fi
 #Check for parameters; exit 1 if no parameters
 if [[ ${#} -eq 0 ]]
 then
-	echo "[ ${NOW} ] Usage: ${0} USER_NAME [COMMENT]..." &>> ${ERRLOG}
-	echo "[ ${NOW} ] Must supply a USER_NAME parameter." &>> ${ERRLOG}
+	echo "[ ${NOW} ] Usage: ${0} USER_NAME [COMMENT]..." >&2
+	echo "[ ${NOW} ] Must supply a USER_NAME parameter." >&2
 	exit 1
 fi
 
@@ -33,7 +32,7 @@ useradd --comment "${COMMENT}" --create-home ${USRNAME} &> /dev/null
 #If fails account creation; exit status 1
 if [[ "${?}" -ne 0 ]]
 then
-  echo "[ ${NOW} ] User Account Creation Failed." &>> ${ERRLOG}
+  echo "[ ${NOW} ] User Account Creation Failed." >&2 
   exit 1
 fi
 
@@ -41,12 +40,12 @@ fi
 PASSWRD=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c8)
 
 #Set password and force expire it
-echo ${PASSWRD} | passwd --stdin ${USRNAME} > /dev/null
-passwd -e ${USRNAME} > /dev/null
+echo ${PASSWRD} | passwd --stdin ${USRNAME} &> /dev/null
+passwd -e ${USRNAME} &> /dev/null
 
 if [[ "${?}" -ne 0 ]]
 then
-	echo "[ ${NOW} ] Failed to set password for ${USRNAME} account." &>> ${ERROLOG}
+	echo "[ ${NOW} ] Failed to set password for ${USRNAME} account." >&2 
 fi
 
 #Display username, password, and host of account
