@@ -42,23 +42,27 @@ do
 	esac
 done
 
+#Shift past optional args
 shift $((OPTIND - 1))
 
-echo "Delete Account: ${DELETE_ACCOUNT}"
-echo "Remove Home Directory: ${REMOVE_HOME}"
-echo "Archive Account: ${ARCHIVE_ACCOUNT}"
-
-echo ""
-
-echo "Options: ${#}"
-echo "All Args: ${@}"
-echo "OPTIND: ${OPTIND}" 
-
+#Ensure username arg exists
+if [[ "${#}" -eq 0 ]]
+then
+	usage
+	exit 1
+fi
 
 #Perform actions for each username
+while [[ "${#}" -gt 0 ]]
+do
+	
+	#Check if user exists
 
+	#Check if ID is valid
 
-#Skip accounts with UID < 1000
+	#Perform action
 
+	#Provide result
 
-#Provide message for end result
+	shift
+done
