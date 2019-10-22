@@ -55,14 +55,86 @@ fi
 #Perform actions for each username
 while [[ "${#}" -gt 0 ]]
 do
-	
+	USERNAME=${1}
+	shift
+
 	#Check if user exists
+	USER_ID=$(id -u name > /dev/null 1>&2) 
+	if [[ ${?} -ne 0 ]]
+	then
+		echo "FAILURE: ${USERNAME} does not exist."
+		continue
+	fi
 
 	#Check if ID is valid
+	if [[ ${USER_ID} -lt 1000 ]]
+	then
+		echo "FAILURE: ${USERNAME}, ID - ${USER_ID}, is a system account (ID<1000). Will not take action."
+		continue
+	fi
 
 	#Perform action
+	#Check if archiving home dir
+	if [[ $ARCHIVE_ACCOUNT = true ]]
+	then
 
-	#Provide result
+		#Check if archive directory does not exists
+		if [[ ! -d "./archives" ]]
+		then
+			mkdir archives
+		fi
 
-	shift
+		#Archive home directory to archives directory
+		tar -cf ${USERNAME}.tar ./archives
+
+		if [[ ${?} -eq 0 ]]
+		then
+			echo "SUCCESS: ${USERNAME} home directory archived to ./archives/${USERNAME}.tar"
+		else
+			echo "FAILURE: ${USERNAME} home directory failed to archive"
+		fi
+	fi
+
+	#Delete or disable account
+	if [[ ${DELETE_ACCOUNT} = true ]]
+	then
+		if [[ ${REMOVE_HOME} = true ]]
+		then
+			#Delete account and remove home directory
+			userdel -r ${USERNAME}
+
+			if [[ ${?} -eq 0 ]]
+			then
+				echo "SUCCESS: ${USERNAME} account and home directories are deleted."
+			else
+				echo "FAILURE: ${USERNAME} account and home directory failed to be deleted."
+			fi
+			
+		else
+			#Delete account and preserve home directory
+			userdel ${USERNAME}
+
+			if [[ ${?} -eq 0 ]]
+			then
+				echo "SUCCESS: ${USERNAME} account is deleted."
+			else
+				echo "FAILURE: ${USERNAME} account failed to be deleted."
+			fi
+			
+		fi
+		#Delete account without removing home directory
+	else
+		#Disable account
+		chage -E 0 ${USERNAME}
+
+		if [[ ${?} -eq 0 ]]
+		then
+			echo "SUCCESS: ${USERNAME} account is disabled."
+		else
+			echo "FAILURE: ${USERNAME} account failed to be disabled."
+		fi
+		
+	fi
 done
+
+exit 0
