@@ -59,7 +59,7 @@ do
 	shift
 
 	#Check if user exists
-	USER_ID=$(id -u name > /dev/null 1>&2) 
+	USER_ID=$(id -u ${USERNAME} /dev/null 1>&2) 
 	if [[ ${?} -ne 0 ]]
 	then
 		echo "FAILURE: ${USERNAME} does not exist."
