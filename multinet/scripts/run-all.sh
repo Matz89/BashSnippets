@@ -3,7 +3,7 @@
 #Does not allow user to run with superuser privileges
 if [[ ${UID} -eq 0 ]]
 then
-	echo "ERROR: Cannot run this script as superuser" &>2
+	echo "ERROR: Cannot run this script as superuser" >&2
 	exit 1
 fi
 
@@ -20,9 +20,31 @@ usage () {
 
 #Verbose function
 verbose () {
-	echo "VERBOSE: ${1}"
+	if [[ ${VERBOSE} -eq true ]]
+	then
+		echo "VERBOSE: ${1}"
+	fi
 }
 
+#Perform command function
+perform_cmd () {
+
+	SERVER="${1}"
+	COMMAND="${2}"
+
+	if [[ ${REMOTE_SUDO} -eq true ]]
+	then
+	  COMMAND="sudo ${2}"
+	fi
+
+	if [[ ${DRY_RUN} -eq true ]] 
+	then
+		echo "DRY RUN (${SERVER}): ${COMMAND}"
+	else
+		ssh -o ConnectTimeout=2 ${SERVER} ${COMMAND}
+	fi
+
+}
 
 while getopts f:nsv OPTION
 do
@@ -50,8 +72,18 @@ done
 shift $((OPTIND - 1))
 
 #Verify FILE exists
+verbose "Checking if file exists..."
+
 if [[ ! -f "${FILE}" ]]
 then
-	echo "ERROR: ${FILE} does not exist!" &>2
+	echo "ERROR: ${FILE} does not exist!" >&2
 	exit 1
 fi
+
+verbose "${FILE} exists!"
+
+#Bash command loop
+#while itr through each server
+#do command
+#save exit status
+
