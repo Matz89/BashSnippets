@@ -20,7 +20,7 @@ usage () {
 
 #Verbose function
 verbose () {
-	if [[ ${VERBOSE} -eq true ]]
+	if [[ ${VERBOSE} = true ]]
 	then
 		echo "VERBOSE: ${1}"
 	fi
@@ -32,19 +32,26 @@ perform_cmd () {
 	SERVER="${1}"
 	COMMAND="${2}"
 
-	if [[ ${REMOTE_SUDO} -eq true ]]
+	if [[ ${REMOTE_SUDO} = true ]]
 	then
 	  COMMAND="sudo ${2}"
 	fi
 
-	if [[ ${DRY_RUN} -eq true ]] 
+	verbose "${SERVER}: (running cmd) ${COMMAND}"
+	if [[ ${DRY_RUN} = true ]] 
 	then
-		echo "DRY RUN (${SERVER}): ${COMMAND}"
+		echo "DRY RUN (${SERVER}): ssh -o ConnectTimeout=2 ${SERVER} ${COMMAND}"
 	else
+		echo "ssh -o ConnectTimeout=2 $SERVER $COMMAND"
 		ssh -o ConnectTimeout=2 ${SERVER} ${COMMAND}
+		
 	fi
+	verbose "${SERVER}: (cmd exit status) ${?}"
 
 }
+echo "DRY_RUN: $DRY_RUN"
+echo "SUDO: $REMOTE_SUDO"
+echo "VERBOSE: $VERBOSE"
 
 while getopts f:nsv OPTION
 do
@@ -68,6 +75,11 @@ do
 	esac
 done
 
+echo "DRY_RUN: $DRY_RUN"
+echo "SUDO: $REMOTE_SUDO"
+echo "VERBOSE: $VERBOSE"
+
+
 #shift past optional args
 shift $((OPTIND - 1))
 
@@ -82,8 +94,13 @@ fi
 
 verbose "${FILE} exists!"
 
-#Bash command loop
-#while itr through each server
-#do command
-#save exit status
+for SERVER in $(cat ${FILE})
+do
+	echo ""
+	echo "-----${SERVER} CMDS-----"
+
+	perform_cmd ${SERVER} ${1}
+
+	echo "-----${SERVER} DONE-----"
+done
 
