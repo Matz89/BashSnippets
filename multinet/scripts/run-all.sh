@@ -15,7 +15,13 @@ VERBOSE=false
 
 #Usage function
 usage () {
-	echo "TODO: USAGE WORDS HERE"
+	echo "Usage: ${0} [-nsv] [-f FILE] COMMAND" >&2
+	echo "Executes COMMAND as a single command on every server." >&2
+	echo "	-f FILE	Use FILE for the list of servers. Default ${FILE}." >&2
+	echo "	-n	Dry run mode. Display the COMMAND without executing." >&2
+	echo "	-s	Execute COMMAND using sudo on remote server. " >&2
+	echo "	-v	Verbose output" >&2
+	exit 1			
 }
 
 #Verbose function
@@ -93,14 +99,10 @@ then
 fi
 
 verbose "${FILE} exists!"
+EXIT_STATUS="0"
 
 for SERVER in $(cat ${FILE})
 do
-	echo ""
-	echo "-----${SERVER} CMDS-----"
-
 	perform_cmd ${SERVER} ${1}
-
-	echo "-----${SERVER} DONE-----"
 done
 
